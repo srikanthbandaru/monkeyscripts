@@ -66,6 +66,20 @@
     window.location.href = `${breathingURL}?duration=${siteConfig.breathingDuration}&returnUrl=${returnUrl}&limitReached=${limitReached}`;
   }
 
+  // to avoid infinite loop on first visit of the day
+  if (
+    siteConfig.elapsedMins === 0 &&
+    document.referrer !== "https://srikanthbandaru.github.io/"
+  ) {
+    updateTimer();
+    redirectToBreathing({ limitReached: false });
+  }
+
+  if (siteConfig.elapsedMins >= siteConfig.dailyLimitMins) {
+    stopTimer();
+    redirectToBreathing({ limitReached: true });
+  }
+
   async function updateTimer() {
     siteConfig.elapsedMins++;
     await GM.setValue(siteConfig.storageKey, siteConfig.elapsedMins);
